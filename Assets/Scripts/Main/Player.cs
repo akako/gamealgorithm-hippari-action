@@ -22,7 +22,10 @@ namespace HippariAction.Main
             set
             {
                 base.IsMovable = value;
-                image.color = value ? Color.white : Color.black;
+                if (null != image)
+                {
+                    image.color = value ? Color.white : Color.black;
+                }
             }
         }
 
@@ -103,8 +106,11 @@ namespace HippariAction.Main
 
             var diff = data.position - startPosition;
             Debug.Log("go!!");
-            var magnitudeLimit = Mathf.Max(diff.magnitude, 100f) / 100f;
-            Move(-diff * magnitudeLimit * speed);
+            var magnitudeLimit = 50f;
+            Debug.Log(diff.magnitude);
+            var magnitudeLimitRatio = magnitudeLimit / Mathf.Max(diff.magnitude, magnitudeLimit);
+            var speedBonus = speedKeepCount > 0 ? 2f : 1f;
+            Move(-diff * magnitudeLimitRatio * speed * speedBonus);
         }
 
         protected override void OnMoveFinished()

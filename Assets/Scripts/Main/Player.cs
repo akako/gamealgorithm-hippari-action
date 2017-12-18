@@ -1,20 +1,36 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace HippariAction.Main
 {
     public class Player : Mob
     {
+        public Action onDestroyed;
+
         [SerializeField] Laser laserPrefab;
 
         Vector2 startPosition;
         bool isLaserSkillActive;
+        Image image;
+
+        public override bool IsMovable
+        {
+            set
+            {
+                base.IsMovable = value;
+                image.color = value ? Color.white : Color.black;
+            }
+        }
 
         protected override void Start()
         {
             base.Start();
+            image = GetComponent<Image>();
+
             var eventTrigger = GetComponent<EventTrigger>();
             var beginDragEntry = new EventTrigger.Entry();
             beginDragEntry.eventID = EventTriggerType.PointerDown;
@@ -39,6 +55,20 @@ namespace HippariAction.Main
                 OnEndDrag((PointerEventData)data);
             });
             eventTrigger.triggers.Add(endDragEntry);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            Debug.Log(speedKeepCount);
+        }
+
+        void OnDestroy()
+        {
+            if (null != onDestroyed)
+            {
+                onDestroyed();
+            }
         }
 
         void OnBeginDrag(PointerEventData data)
@@ -73,7 +103,8 @@ namespace HippariAction.Main
 
             var diff = data.position - startPosition;
             Debug.Log("go!!");
-            Move(-diff * speed);
+            var magnitudeLimit = Mathf.Max(diff.magnitude, 100f) / 100f;
+            Move(-diff * magnitudeLimit * speed);
         }
 
         protected override void OnMoveFinished()
@@ -97,12 +128,14 @@ namespace HippariAction.Main
         {
             speedKeepCount = 5;
             isLaserSkillActive = false;
+            Debug.Log("iteru");
         }
 
         public void InvokeLaserSkill()
         {
             speedKeepCount = 0;
             isLaserSkillActive = true;
+            Debug.Log("hogehoge");
         }
 
         void FireLaser()

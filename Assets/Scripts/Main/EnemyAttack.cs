@@ -5,29 +5,29 @@ using DG.Tweening;
 
 namespace HippariAction.Main
 {
-    public class Laser : MonoBehaviour
+    public class EnemyAttack : MonoBehaviour
     {
         int power;
 
         void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.gameObject.tag == "Enemy")
+            if (collision.gameObject.tag == "Player")
             {
-                var enemy = collision.GetComponent<Enemy>();
-                enemy.Damage(power);
+                var player = collision.GetComponent<Player>();
+                player.Damage(power);
             }
         }
 
-        public void StartAnimate(int power)
+        public IEnumerator StartAnimate(int power)
         {
             this.power = power;
             transform.localScale = Vector3.zero;
-            transform.DOScale(Vector3.one, 0.3f)
+            yield return transform.DOScale(Vector3.one, 0.3f)
                      .OnComplete(() =>
                      {
                          transform.localScale = Vector3.one;
                          Destroy(gameObject);
-                     });
+                     }).WaitForCompletion();
         }
     }
 }
